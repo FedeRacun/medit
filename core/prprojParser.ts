@@ -1,12 +1,13 @@
-import { XMLParser } from "fast-xml-parser";
+import { join, basename, relative } from "path";
 import { readdirSync, readFileSync, statSync } from "fs";
-import { basename, join, relative } from "path";
 import { gunzipSync } from "zlib";
-import { findFileRecursively } from "../utils/findFileRecursively";
+import { XMLParser } from "fast-xml-parser";
 import { loadManifest, saveManifest } from "./manifest";
+import { findFileRecursively } from "../utils/findFileRecursively";
 
 export async function scanProject(options: { file?: string }) {
   const path = await import("path");
+  const fs = await import("fs");
 
   const projectRoot = process.cwd();
   const prprojFile = options.file
@@ -52,19 +53,25 @@ export async function scanProject(options: { file?: string }) {
     return;
   }
 
-  const rawPathSet = new Set<string>();
+  // 🔁 Deduplicación por nombre
+  const nameSet = new Set<string>();
+  const rawPaths: string[] = [];
+
   const walk = (obj: any) => {
     for (const key in obj) {
       const val = obj[key];
       if (typeof val === "string" && val.match(/\.(mp4|mov|wav|jpg|png|mp3|psd)$/i)) {
-        rawPathSet.add(val);
+        const name = path.basename(val).toLowerCase();
+        if (!nameSet.has(name)) {
+          nameSet.add(name);
+          rawPaths.push(val);
+        }
       } else if (typeof val === "object" && val !== null) {
         walk(val);
       }
     }
   };
   walk(parsed);
-  const rawPaths = Array.from(rawPathSet);
 
   const manifest = loadManifest();
   const files = rawPaths.map(raw => {
@@ -99,13 +106,22 @@ export async function scanProject(options: { file?: string }) {
   const downloaded = files.length - missing.length;
 
   if (missing.length > 0) {
-    console.log("\n🔍 Archivos pendientes:");
+    console.log(`🔍 Archivos Pendientes:  [${missing.length}]`);
     missing.forEach(f => {
-      console.log(` - ${f.name} (referenciado como: ${f.source_in_project})`);
+      console.log(` - ${f.name}`);
     });
   }
 
-  console.log(`📦 Archivos detectados: ${files.length}`);
-  console.log(`🟩 Ya descargados: ${downloaded}`);
-  console.log(`🟥 Faltan en local: ${missing.length}`);
+  if (downloaded > 0) {
+    console.log(`\n📦 Archivos Descargados: [${downloaded}]`);
+    files.filter(f => f.status === "downloaded").forEach(f => {
+      console.log(` - ${f.name}`);
+    });
+  }
+
+  console.log(`\n`);
+  // console.log(`[${downloaded}] Descargados`);
+  // console.log(`[${missing.length}] Pendientes`);
+  console.log(`[${files.length}] Total`);
+  console.log(`\n`);
 }

@@ -2,9 +2,12 @@ import { createInterface } from "readline";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { join } from "path";
 import { google } from "googleapis";
+import os from "os";
 
-const TOKEN_DIR = join(process.env.HOME!, ".medit");
-const TOKEN_PATH = join(TOKEN_DIR, "token.json");
+if (!os.homedir()) throw new Error("No se pudo determinar el directorio home del usuario.");
+
+const TOKEN_DIR = join(os.homedir(), ".medit");
+const TOKEN_PATH = join(os.homedir(), ".medit", "token.json");
 
 // Reemplazá con tu client_id y client_secret
 const CLIENT_ID = "280376733373-9af71ejb16gr352l4skt1cdcdnaudfs4.apps.googleusercontent.com";
