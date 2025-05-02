@@ -7,7 +7,6 @@ import { findFileRecursively } from "../utils/findFileRecursively";
 
 export async function scanProject(options: { file?: string }) {
   const path = await import("path");
-  const fs = await import("fs");
 
   const projectRoot = process.cwd();
   const prprojFile = options.file

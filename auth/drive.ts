@@ -1,35 +1,25 @@
 import { google } from "googleapis";
-import { createWriteStream, existsSync, readFileSync } from "fs";
+import { createWriteStream, existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import os from "os";
 
 const TOKEN_PATH = join(os.homedir(), ".medit", "token.json");
 
-// Tus credenciales de la app registrada en Google Cloud
 const CLIENT_ID = "280376733373-9af71ejb16gr352l4skt1cdcdnaudfs4.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
 const REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
-// const SCOPES = ["https://www.googleapis.com/auth/drive.readonly"];
-
-function loadTokenOrExit() {
+/**
+ * Crea un cliente OAuth2, valida token, refresca si está vencido y actualiza el archivo.
+ */
+function loadOAuthClient() {
   if (!existsSync(TOKEN_PATH)) {
     console.error("❌ No estás autenticado con Google Drive.");
     console.error("👉 Ejecutá 'medit login' para vincular tu cuenta.");
     process.exit(1);
   }
 
-  try {
-    return JSON.parse(readFileSync(TOKEN_PATH, "utf-8"));
-  } catch {
-    console.error("❌ El archivo de token está dañado o ilegible.");
-    process.exit(1);
-  }
-}
-
-
-export async function findFileInDrive(fileName: string) {
-  const token = loadTokenOrExit();
+  const token = JSON.parse(readFileSync(TOKEN_PATH, "utf-8"));
 
   const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,
@@ -38,7 +28,21 @@ export async function findFileInDrive(fileName: string) {
   );
 
   oAuth2Client.setCredentials(token);
-  const drive = google.drive({ version: "v3", auth: oAuth2Client });
+
+  oAuth2Client.on("tokens", (newTokens) => {
+    if (newTokens.access_token) {
+      const updated = { ...token, ...newTokens };
+      writeFileSync(TOKEN_PATH, JSON.stringify(updated, null, 2));
+      console.log("🔁 Token de acceso actualizado automáticamente.");
+    }
+  });
+
+  return oAuth2Client;
+}
+
+export async function findFileInDrive(fileName: string) {
+  const auth = loadOAuthClient();
+  const drive = google.drive({ version: "v3", auth });
 
   const res = await drive.files.list({
     q: `name='${fileName.replace("'", "\\'")}' and trashed=false`,
@@ -58,18 +62,9 @@ export async function findFileInDrive(fileName: string) {
 }
 
 export async function downloadFileFromDrive(fileId: string, destinationPath: string) {
-  const token = loadTokenOrExit();
+  const auth = loadOAuthClient();
+  const drive = google.drive({ version: "v3", auth });
 
-  const oAuth2Client = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
-    REDIRECT_URI
-  );
-
-  oAuth2Client.setCredentials(token);
-  const drive = google.drive({ version: "v3", auth: oAuth2Client });
-
-  // Primero consultamos el tamaño del archivo
   const meta = await drive.files.get({
     fileId,
     fields: "size, name"
@@ -108,4 +103,3 @@ export async function downloadFileFromDrive(fileId: string, destinationPath: str
       .pipe(dest);
   });
 }
-

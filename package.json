@@ -16,6 +16,7 @@
     "cac": "^6.7.14",
     "fast-xml-parser": "^5.2.1",
     "google-auth-library": "^9.15.1",
-    "googleapis": "^148.0.0"
+    "googleapis": "^148.0.0",
+    "jwt-decode": "^4.0.0"
   }
 }
