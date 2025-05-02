@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { createWriteStream, readFileSync } from "fs";
+import { createWriteStream, existsSync, readFileSync } from "fs";
 import { join } from "path";
 import os from "os";
 
@@ -12,8 +12,24 @@ const REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
 
 // const SCOPES = ["https://www.googleapis.com/auth/drive.readonly"];
 
+function loadTokenOrExit() {
+  if (!existsSync(TOKEN_PATH)) {
+    console.error("❌ No estás autenticado con Google Drive.");
+    console.error("👉 Ejecutá 'medit login' para vincular tu cuenta.");
+    process.exit(1);
+  }
+
+  try {
+    return JSON.parse(readFileSync(TOKEN_PATH, "utf-8"));
+  } catch {
+    console.error("❌ El archivo de token está dañado o ilegible.");
+    process.exit(1);
+  }
+}
+
+
 export async function findFileInDrive(fileName: string) {
-  const token = JSON.parse(readFileSync(TOKEN_PATH, "utf-8"));
+  const token = loadTokenOrExit();
 
   const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,
@@ -42,7 +58,7 @@ export async function findFileInDrive(fileName: string) {
 }
 
 export async function downloadFileFromDrive(fileId: string, destinationPath: string) {
-  const token = JSON.parse(readFileSync(TOKEN_PATH, "utf-8"));
+  const token = loadTokenOrExit();
 
   const oAuth2Client = new google.auth.OAuth2(
     CLIENT_ID,

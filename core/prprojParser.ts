@@ -106,7 +106,7 @@ export async function scanProject(options: { file?: string }) {
   const downloaded = files.length - missing.length;
 
   if (missing.length > 0) {
-    console.log(`🔍 Archivos Pendientes:  [${missing.length}]`);
+    console.log(`📂 Archivos Pendientes:  [${missing.length}]`);
     missing.forEach(f => {
       console.log(` - ${f.name}`);
     });
