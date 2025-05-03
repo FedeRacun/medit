@@ -1,12 +1,10 @@
-import { join, basename, relative } from "path";
-import { readdirSync, statSync, createReadStream } from "fs";
+import path, { join, relative } from "path";
+import { readdirSync, statSync, createReadStream, promises as fsPromises, existsSync, mkdirSync } from "fs";
 import { loadManifest, saveManifest } from "./manifest";
 import { findFileRecursively } from "../utils/findFileRecursively";
 import sax from "sax";
 
 export async function scanProject(options: { file?: string }) {
-  const path = await import("path");
-  const fs = await import("fs/promises");
 
   const projectRoot = process.cwd();
   const prprojFile = options.file
@@ -19,34 +17,40 @@ export async function scanProject(options: { file?: string }) {
   }
 
   const prprojPath = options.file ? prprojFile : join(projectRoot, prprojFile);
-  const rawBuffer = await fs.readFile(prprojPath);
+  const rawBuffer = await fsPromises.readFile(prprojPath);
   const isGzipped = rawBuffer[0] === 0x1f && rawBuffer[1] === 0x8b;
 
-  const foundMap = new Map<string, string>(); // nombre → path
-  console.log("⏳ Escaneando .prproj por stream...");
+  const foundMap = new Map<string, string>();
+  console.log(`🎬 Archivo [.prproj]: ${path.basename(prprojPath)}`);
+  console.log("🔦 Iniciando escaneo del proyecto...\n");
 
   const parser = sax.createStream(true, { trim: true });
+
+  await new Promise<void>(async (resolve, _) => {
   parser.on("text", (text: string) => {
     const extMatch = text.match(/\.(mp4|mov|wav|jpg|png|mp3|psd)$/i);
     if (extMatch) {
       const name = text.split(/[/\\]/).pop();
-      if (name && !foundMap.has(name.toLowerCase())) {
+      if (name) {
         const normalized = name.toLowerCase();
-        foundMap.set(normalized, text);
-        process.stdout.write(`\r📎 Detectado: ${normalized} (${foundMap.size})`);
+        if (!foundMap.has(normalized)) {
+          foundMap.set(normalized, text);
+        }
       }
     }
   });
 
-
   parser.on("error", (err) => {
     console.warn(`⚠️ Error parseando (ignorado): ${err.message}`);
-    parser.resume(); // Sigue leyendo en lugar de abortar
+    parser.resume();
   });
 
   parser.on("end", () => {
-    console.log("\n✅ Escaneo completado.");
+    console.log(`📎 Archivos detectados: ${foundMap.size}`);
+    console.log("   ↳ Uniendo nombres únicos y limpiando duplicados...\n");
+    console.log("💡 Escaneo completado\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     postProcess();
+    resolve();
   });
 
   const stream = createReadStream(prprojPath);
@@ -56,9 +60,15 @@ export async function scanProject(options: { file?: string }) {
   } else {
     stream.pipe(parser);
   }
+});
 
   function postProcess() {
     const manifest = loadManifest();
+
+    const mediaDir = join(projectRoot, "media");
+    if (!existsSync(mediaDir)) {
+      mkdirSync(mediaDir, { recursive: true });
+    }
 
     const files = [...foundMap.entries()].map(([name, raw]) => {
       const foundPath = findFileRecursively(projectRoot, name);
@@ -91,15 +101,15 @@ export async function scanProject(options: { file?: string }) {
     const downloaded = files.length - missing.length;
 
     if (missing.length > 0) {
-      console.log(`📂 Archivos Pendientes:  [${missing.length}]`);
-      missing.forEach(f => console.log(` - ${f.name}`));
+      console.log(`📂 Archivos pendientes de descarga [${missing.length}]:`);
+      console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+      missing.forEach((f, i) => console.log(`${String(i + 1).padStart(3, " ")}. ${f.name}`));
     }
 
-    if (downloaded > 0) {
-      console.log(`\n📦 Archivos Descargados: [${downloaded}]`);
-      files.filter(f => f.status === "downloaded").forEach(f => console.log(` - ${f.name}`));
-    }
-
-    console.log(`\n[${files.length}] Total\n`);
+    console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log(`🔍 Total de archivos referenciados: ${files.length}`);
+    console.log(`📁 Archivos descargados: ${downloaded}`);
+    console.log(`❌ Archivos faltantes: ${missing.length}`);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
   }
 }
