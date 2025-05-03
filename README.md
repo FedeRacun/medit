@@ -19,7 +19,7 @@
    powershell -c "irm bun.sh/install.ps1 | iex"
    ```
 
-2. Descargar y descomprimir el archivo `medit-master.zip`.
+2. Descargar y descomprimir el archivo `medit-master.zip` [(click aqui)](https://github.com/FedeRacun/medit/archive/refs/heads/master.zip).
 
 3. Abrir la carpeta descomprimida, hacer clic derecho sobre el fondo y elegir **"Abrir en Terminal"**.
 
@@ -35,7 +35,7 @@
    bun link
    ```
 
-   > ✅ Deberías ver: `Success! Registered "medit"`
+ ✅ Deberías ver: `Success! Registered "medit"`
 
 ---
 
