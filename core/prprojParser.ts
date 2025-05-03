@@ -1,6 +1,5 @@
 import { join, basename, relative } from "path";
 import { readdirSync, statSync, createReadStream } from "fs";
-import { gunzipSync } from "zlib";
 import { loadManifest, saveManifest } from "./manifest";
 import { findFileRecursively } from "../utils/findFileRecursively";
 import sax from "sax";
@@ -23,23 +22,22 @@ export async function scanProject(options: { file?: string }) {
   const rawBuffer = await fs.readFile(prprojPath);
   const isGzipped = rawBuffer[0] === 0x1f && rawBuffer[1] === 0x8b;
 
-  const nameSet = new Set<string>();
-  const rawPaths: string[] = [];
-
+  const foundMap = new Map<string, string>(); // nombre → path
   console.log("⏳ Escaneando .prproj por stream...");
 
   const parser = sax.createStream(true, { trim: true });
   parser.on("text", (text: string) => {
     const extMatch = text.match(/\.(mp4|mov|wav|jpg|png|mp3|psd)$/i);
     if (extMatch) {
-      const name = basename(text).toLowerCase();
-      if (!nameSet.has(name)) {
-        nameSet.add(name);
-        rawPaths.push(text);
-        process.stdout.write(`\r📎 Detectado: ${name} (${rawPaths.length})`);
+      const name = text.split(/[/\\]/).pop();
+      if (name && !foundMap.has(name.toLowerCase())) {
+        const normalized = name.toLowerCase();
+        foundMap.set(normalized, text);
+        process.stdout.write(`\r📎 Detectado: ${normalized} (${foundMap.size})`);
       }
     }
   });
+
 
   parser.on("error", (err) => {
     console.warn(`⚠️ Error parseando (ignorado): ${err.message}`);
@@ -53,7 +51,6 @@ export async function scanProject(options: { file?: string }) {
 
   const stream = createReadStream(prprojPath);
   if (isGzipped) {
-    // Usamos zlib en stream para descomprimir en tiempo real
     const zlib = await import("zlib");
     stream.pipe(zlib.createGunzip()).pipe(parser);
   } else {
@@ -63,8 +60,7 @@ export async function scanProject(options: { file?: string }) {
   function postProcess() {
     const manifest = loadManifest();
 
-    const files = rawPaths.map(raw => {
-      const name = basename(raw);
+    const files = [...foundMap.entries()].map(([name, raw]) => {
       const foundPath = findFileRecursively(projectRoot, name);
       const exists = !!foundPath;
       const absolute_path = foundPath ?? join(projectRoot, `media/${name}`);
