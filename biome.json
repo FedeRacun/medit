@@ -1,0 +1,19 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.5.2/schema.json",
+	"extends": [],
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true
+		}
+	},
+	"formatter": {
+		"enabled": true
+	},
+	"organizeImports": {
+		"enabled": true
+	},
+	"files": {
+		"ignore": ["bun.lockb", "google-oauth.json"]
+	}
+}

@@ -1,46 +1,51 @@
+import { statSync } from "node:fs";
 import { downloadFileFromDrive, findFileInDrive } from "../auth/drive";
+import type { ManifestFile } from "../utils/interfaces/manifest.interfaces";
 import { loadManifest, saveManifest } from "./manifest";
-import { statSync } from "fs";
 
 export async function syncMissingFiles() {
-  const manifest = loadManifest();
-  // TODO: remove any type
-  const missingFiles = manifest.files.filter((f: any) => f.status === "missing");
+	const manifest = loadManifest();
 
-  if (missingFiles.length === 0) {
-    console.log("✅ No hay archivos pendientes.");
-    return;
-  }
+	const missingFiles = manifest.files.filter(
+		(f: ManifestFile) => f.status === "missing",
+	);
 
-  console.log(`🔄 Buscando en Google Drive (${missingFiles.length} archivos)...`);
+	if (missingFiles.length === 0) {
+		console.log("✅ No hay archivos pendientes.");
+		return;
+	}
 
-  for (const file of missingFiles) {
-    console.log(`\n🔍 Buscando: ${file.name}`);
+	console.log(
+		`🔄 Buscando en Google Drive (${missingFiles.length} archivos)...`,
+	);
 
-    const found = await findFileInDrive(file.name);
-    if (!found) {
-      console.warn(`❌ No se encontró en Drive: ${file.name}`);
-      continue;
-    }
+	for (const file of missingFiles) {
+		console.log(`\n🔍 Buscando: ${file.name}`);
 
-    try {
-      await downloadFileFromDrive(found.id, file.absolute_path);
+		const found = await findFileInDrive(file.name);
+		if (!found) {
+			console.warn(`❌ No se encontró en Drive: ${file.name}`);
+			continue;
+		}
 
-      const stat = statSync(file.absolute_path);
-      file.status = "downloaded";
-      file.size = stat.size;
-      file.last_modified = stat.mtime.toISOString();
-      file.drive_id = found.id;
-      file.drive_path = `https://drive.google.com/file/d/${found.id}/view`;
-      file.drive_last_modified = found.modifiedTime;
-      file.conflict = false;
+		try {
+			await downloadFileFromDrive(found.id, file.absolute_path);
 
-      console.log(`✅ Archivo descargado y actualizado: ${file.name}`);
-    } catch (err) {
-      console.error(`❌ Falló la descarga de ${file.name}:`, err);
-    }
-  }
+			const stat = statSync(file.absolute_path);
+			file.status = "downloaded";
+			file.size = stat.size;
+			file.last_modified = stat.mtime.toISOString();
+			file.drive_id = found.id;
+			file.drive_path = `https://drive.google.com/file/d/${found.id}/view`;
+			file.drive_last_modified = found.modifiedTime;
+			file.conflict = false;
 
-  saveManifest(manifest);
-  console.log("\n📦 Sincronización finalizada.");
+			console.log(`✅ Archivo descargado y actualizado: ${file.name}`);
+		} catch (err) {
+			console.error(`❌ Falló la descarga de ${file.name}:`, err);
+		}
+	}
+
+	saveManifest(manifest);
+	console.log("\n📦 Sincronización finalizada.");
 }
