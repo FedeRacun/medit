@@ -1,24 +1,30 @@
 {
-  "name": "medit",
-  "version": "0.1.0",
-  "type": "module",
-  "private": true,
-  "bin": {
-    "medit": "./bin/medit.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@types/sax": "^1.2.7",
-    "cac": "^6.7.14",
-    "fast-xml-parser": "^5.2.1",
-    "google-auth-library": "^9.15.1",
-    "googleapis": "^148.0.0",
-    "jwt-decode": "^4.0.0",
-    "sax": "^1.4.1"
-  }
+	"name": "medit",
+	"version": "0.1.0",
+	"type": "module",
+	"private": true,
+	"bin": {
+		"medit": "./bin/medit.ts"
+	},
+	"scripts": {
+		"lint": "bunx biome check .",
+		"format": "bunx biome format . --write",
+		"format:unsafe": "biome check --fix --unsafe"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@types/sax": "^1.2.7",
+		"cac": "^6.7.14",
+		"fast-xml-parser": "^5.2.1",
+		"google-auth-library": "^9.15.1",
+		"googleapis": "^148.0.0",
+		"jwt-decode": "^4.0.0",
+		"sax": "^1.4.1"
+	}
 }
