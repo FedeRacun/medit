@@ -18,9 +18,7 @@ export async function scanProject(options: { file?: string }) {
 		: readdirSync(projectRoot).find((f) => f.endsWith(".prproj"));
 
 	if (!prprojFile) {
-		console.error(
-			"❌ No se encontró ningún archivo .prproj en el directorio actual.",
-		);
+		console.error("❌ No .prproj file found in the current directory.");
 		return;
 	}
 
@@ -29,8 +27,8 @@ export async function scanProject(options: { file?: string }) {
 	const isGzipped = rawBuffer[0] === 0x1f && rawBuffer[1] === 0x8b;
 
 	const foundMap = new Map<string, string>();
-	console.log(`🎬 Archivo [.prproj]: ${path.basename(prprojPath)}`);
-	console.log("🔦 Iniciando escaneo del proyecto...\n");
+	console.log(`🎬 Project file [.prproj]: ${path.basename(prprojPath)}`);
+	console.log("🔦 Starting project scan...\n");
 
 	const parser = sax.createStream(true, { trim: true });
 
@@ -49,15 +47,15 @@ export async function scanProject(options: { file?: string }) {
 		});
 
 		parser.on("error", (err) => {
-			console.warn(`⚠️ Error parseando (ignorado): ${err.message}`);
+			console.warn(`⚠️ Parse error (ignored): ${err.message}`);
 			parser.resume();
 		});
 
 		parser.on("end", () => {
-			console.log(`📎 Archivos detectados: ${foundMap.size}`);
-			console.log("   ↳ Uniendo nombres únicos y limpiando duplicados...\n");
+			console.log(`📎 Media files detected: ${foundMap.size}`);
+			console.log("   ↳ Deduplicating and normalizing names...\n");
 			console.log(
-				"💡 Escaneo completado\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
+				"💡 Scan complete\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
 			);
 			postProcess();
 			resolve();
@@ -112,7 +110,7 @@ export async function scanProject(options: { file?: string }) {
 		const downloaded = files.length - missing.length;
 
 		if (missing.length > 0) {
-			console.log(`📂 Archivos pendientes de descarga [${missing.length}]:`);
+			console.log(`📂 Files pending download [${missing.length}]:`);
 			console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 			missing.forEach((f, i) =>
 				console.log(`${String(i + 1).padStart(3, " ")}. ${f.name}`),
@@ -120,9 +118,9 @@ export async function scanProject(options: { file?: string }) {
 		}
 
 		console.log("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-		console.log(`🔍 Total de archivos referenciados: ${files.length}`);
-		console.log(`📁 Archivos descargados: ${downloaded}`);
-		console.log(`❌ Archivos faltantes: ${missing.length}`);
+		console.log(`🔍 Total referenced files: ${files.length}`);
+		console.log(`📁 Downloaded files: ${downloaded}`);
+		console.log(`❌ Missing files: ${missing.length}`);
 		console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 	}
 }

@@ -11,20 +11,18 @@ export async function syncMissingFiles() {
 	);
 
 	if (missingFiles.length === 0) {
-		console.log("✅ No hay archivos pendientes.");
+		console.log("✅ No pending files to sync.");
 		return;
 	}
 
-	console.log(
-		`🔄 Buscando en Google Drive (${missingFiles.length} archivos)...`,
-	);
+	console.log(`🔄 Searching on Google Drive (${missingFiles.length} files)...`);
 
 	for (const file of missingFiles) {
-		console.log(`\n🔍 Buscando: ${file.name}`);
+		console.log(`\n🔍 Searching: ${file.name}`);
 
 		const found = await findFileInDrive(file.name);
 		if (!found) {
-			console.warn(`❌ No se encontró en Drive: ${file.name}`);
+			console.warn(`❌ Not found on Drive: ${file.name}`);
 			continue;
 		}
 
@@ -40,12 +38,12 @@ export async function syncMissingFiles() {
 			file.drive_last_modified = found.modifiedTime;
 			file.conflict = false;
 
-			console.log(`✅ Archivo descargado y actualizado: ${file.name}`);
+			console.log(`✅ File downloaded and updated: ${file.name}`);
 		} catch (err) {
-			console.error(`❌ Falló la descarga de ${file.name}:`, err);
+			console.error(`❌ Failed to download ${file.name}:`, err);
 		}
 	}
 
 	saveManifest(manifest);
-	console.log("\n📦 Sincronización finalizada.");
+	console.log("\n📦 Sync complete.");
 }

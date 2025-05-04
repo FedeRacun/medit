@@ -6,17 +6,17 @@ import { google } from "googleapis";
 import { jwtDecode } from "jwt-decode";
 
 if (!os.homedir())
-	throw new Error("No se pudo determinar el directorio home del usuario.");
+	throw new Error("Could not determine the user's home directory.");
 
 const TOKEN_DIR = join(os.homedir(), ".medit");
 const TOKEN_PATH = join(TOKEN_DIR, "token.json");
 const CONFIG_PATH = join(TOKEN_DIR, "config.json");
 
-// Reemplazá con tu client_id y client_secret
+// Replace with your client_id and client_secret
 const CLIENT_ID =
 	"280376733373-9af71ejb16gr352l4skt1cdcdnaudfs4.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
-const REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"; // flujo consola (sin servidor)
+const REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob"; // console flow (no server)
 
 const SCOPES = [
 	"https://www.googleapis.com/auth/drive.readonly",
@@ -44,17 +44,17 @@ export async function loginWithGoogle() {
 		prompt: "consent",
 	});
 
-	console.log("📎 Abrí esta URL en tu navegador y autorizá la app:");
+	console.log("📎 Open this URL in your browser and authorize the app:");
 	console.log(authUrl);
 
-	const code = await ask("📥 Pegá el código que te dio Google: ");
+	const code = await ask("📥 Paste the code provided by Google: ");
 	const { tokens } = await oAuth2Client.getToken(code);
 	oAuth2Client.setCredentials(tokens);
 
 	if (!existsSync(TOKEN_DIR)) mkdirSync(TOKEN_DIR);
 
 	writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
-	console.log("✅ Login exitoso. Token guardado en ~/.medit/token.json");
+	console.log("✅ Login successful. Token saved at ~/.medit/token.json");
 
 	if (tokens.id_token) {
 		try {
@@ -68,17 +68,15 @@ export async function loginWithGoogle() {
 
 			if (config.name || config.email) {
 				console.log(
-					`👤 Usuario autenticado: ${config.name ?? "desconocido"} <${config.email ?? "sin email"}>`,
+					`👤 Authenticated user: ${config.name ?? "unknown"} <${config.email ?? "no email"}>`,
 				);
 			} else {
-				console.log("👤 Usuario autenticado (sin info de perfil)");
+				console.log("👤 Authenticated user (no profile info)");
 			}
 
-			console.log("📝 Configuración guardada en ~/.medit/config.json");
+			console.log("📝 Config saved at ~/.medit/config.json");
 		} catch (err) {
-			console.warn(
-				"⚠️ No se pudo decodificar el id_token para guardar el perfil.",
-			);
+			console.warn("⚠️ Could not decode id_token to save profile information.");
 		}
 	}
 }
