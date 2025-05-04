@@ -8,7 +8,7 @@ import { scanProject } from "../core/prprojParser";
 
 export const registerInit = (cli: CAC) => {
 	cli.command("init", "Inicializa un proyecto medit").action(async () => {
-		console.log("🧠 Medit CLI v0.1");
+		console.log("🧠 Medit CLI v0.2");
 		console.log("\n🔄 Inicializando proyecto...\n");
 		const created = createManifest();
 
