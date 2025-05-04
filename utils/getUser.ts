@@ -18,7 +18,7 @@ export function getUser(): UserConfig | null {
 		const raw = readFileSync(CONFIG_PATH, "utf-8");
 		return JSON.parse(raw);
 	} catch {
-		console.error("⚠️ No se pudo leer o parsear ~/.medit/config.json");
+		console.error("⚠️ Failed to read or parse ~/.medit/config.json");
 		return null;
 	}
 }

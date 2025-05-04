@@ -7,15 +7,13 @@ import {
 import { scanProject } from "../core/prprojParser";
 
 export const registerInit = (cli: CAC) => {
-	cli.command("init", "Inicializa un proyecto medit").action(async () => {
+	cli.command("init", "Initializes a medit project").action(async () => {
 		console.log("🧠 Medit CLI v0.2");
-		console.log("\n🔄 Inicializando proyecto...\n");
+		console.log("\n🔄 Initializing project...\n");
 		const created = createManifest();
 
 		if (!created) {
-			console.log(
-				"❗ Ya existe un proyecto medit inicializado en esta carpeta.",
-			);
+			console.log("❗ A medit project is already initialized in this folder.");
 			return;
 		}
 
@@ -27,12 +25,12 @@ export const registerInit = (cli: CAC) => {
 		);
 		if (missing.length > 0) {
 			console.log(
-				"⚠️ Se encontraron archivos faltantes, pero el proyecto fue inicializado igual.",
+				"⚠️ Missing files were found, but the project was initialized anyway.",
 			);
-			console.log("   Usá 'medit sync' para descargarlos desde Drive.\n");
+			console.log("   Use 'medit sync' to download them from Drive.\n");
 		}
 		saveOriginalSnapshot(manifest);
 		console.log("\n");
-		console.log("✅ Proyecto medit inicializado correctamente.");
+		console.log("✅ Medit project successfully initialized.");
 	});
 };

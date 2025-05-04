@@ -1,92 +1,92 @@
-# 🎬 M E D I T - Media Editor Tracker
+# 🎬 M E D I T - Media Editor Tracker (V0.2)
 
-**medit** es una herramienta de línea de comandos (CLI) para controlar versiones de proyectos multimedia. Actualmente solo soporta trabajar con **Premiere Pro** y **Google Drive**. Está pensada para equipos pequeños que necesitan rastrear cambios, sincronizar archivos y trabajar de forma organizada sin depender de sistemas como Git.
+**medit** is a command-line tool (CLI) for version-controlling multimedia projects. It currently only supports **Premiere Pro** and **Google Drive**. It's designed for small teams that need to track changes, sync files, and work in an organized way without relying on systems like Git.
 
 ---
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### Requisitos
+### Requirements
 
-- PowerShell (preinstalado en Windows)
-- [Bun](https://bun.sh) (se instala en el paso 1)
+- PowerShell (pre-installed on Windows)  
+- [Bun](https://bun.sh) (installed in step 1)
 
-### Pasos
+### Steps
 
-1. Instalar **Bun** ejecutando en PowerShell:
+1. Install **Bun** by running in PowerShell:
 
    ```powershell
    powershell -c "irm bun.sh/install.ps1 | iex"
    ```
 
-2. Descargar y descomprimir el archivo `medit-master.zip` [(click aqui)](https://github.com/FedeRacun/medit/archive/refs/heads/master.zip).
+2. Download and unzip the `medit-master.zip` file [(click here)](https://github.com/FedeRacun/medit/archive/refs/heads/master.zip).
 
-3. Abrir la carpeta descomprimida, hacer clic derecho sobre el fondo y elegir **"Abrir en Terminal"**.
+3. Open the unzipped folder, right-click on the background, and choose **"Open in Terminal"**.
 
-4. Instalar dependencias del proyecto:
+4. Install project dependencies:
 
    ```bash
    bun install
    ```
 
-5. Registrar el comando globalmente:
+5. Register the command globally:
 
    ```bash
    bun link
    ```
 
- ✅ Deberías ver: `Success! Registered "medit"`
+ ✅ You should see: `Success! Registered "medit"`
 
 ---
 
-## 🛠️ Uso Básico
+## 🛠️ Basic Usage
 
-1. Abrí una terminal dentro de la carpeta donde esté tu archivo `.prproj`.
+1. Open a terminal inside the folder where your `.prproj` file is located.
 
-2. Inicializá el proyecto:
+2. Initialize the project:
 
    ```bash
    medit init
    ```
 
-3. Iniciá sesión con tu cuenta de Google:
+3. Log in with your Google account:
 
    ```bash
    medit login
    ```
 
-4. Sincronizá los archivos con tu nube:
+4. Sync your files with the cloud:
 
    ```bash
    medit sync
    ```
 
-   > 🎉 ¡Listo! Tu proyecto está sincronizado y rastreado.
+   > 🎉 Done! Your project is now synced and tracked.
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
-``` bash
+```bash
 medit/
-├── auth/                  # Autenticación y conexión con Google Drive
+├── auth/                  # Authentication and Google Drive connection
 │   ├── drive.ts
 │   ├── google-oauth.json
 │   └── login.ts
-├── bin/                   # Entry point del CLI
+├── bin/                   # CLI entry point
 │   └── medit.ts
-├── commands/              # Comandos disponibles en el CLI
+├── commands/              # CLI available commands
 │   ├── init.ts
 │   ├── login.ts
 │   ├── scan.ts
 │   ├── sync.ts
 │   └── user.ts
-├── core/                  # Lógica principal del proyecto
+├── core/                  # Core project logic
 │   ├── config.ts
 │   ├── manifest.ts
 │   ├── prprojParser.ts
 │   └── sync.ts
-├── utils/                 # Utilidades generales
+├── utils/                 # General utilities
 │   ├── findFileRecursively.ts
 │   └── getUser.ts
 ├── bun.lock
@@ -98,17 +98,17 @@ medit/
 
 ---
 
-## ✨ Próximas Funcionalidades
+## ✨ Upcoming Features
 
-- Comparación de versiones de proyectos `.prproj`
-- Historial visual de cambios
-- Integración con Photoshop y After Effects
-- Visualización en navegador
+- `.prproj` version comparison
+- Visual change history
+- Integration with Photoshop and After Effects
+- Browser-based visualization
 
 ---
 
-## 🤝 Contribuir
+## 🤝 Contribute
 
-Este proyecto está en desarrollo. Si tenés ideas o querés sumarte, ¡contactanos!
+This project is under development. If you have ideas or want to join, feel free to reach out!
 
 ---

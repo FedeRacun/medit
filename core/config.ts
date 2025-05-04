@@ -9,10 +9,10 @@ export function getUserConfig() {
 	const userConfig = getUser();
 
 	if (!userConfig) {
-		console.log("❌ No se encontró la configuración del usuario.");
+		console.log("❌ User configuration not found.");
 	} else {
-		console.log("👤 Información del usuario:");
-		console.log(`- Nombre: ${userConfig.name || "No especificado"}`);
-		console.log(`- Correo: ${userConfig.email || "No especificado"}`);
+		console.log("👤 User information:");
+		console.log(`- Name: ${userConfig.name || "Not specified"}`);
+		console.log(`- Email: ${userConfig.email || "Not specified"}`);
 	}
 }
