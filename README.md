@@ -8,20 +8,25 @@
 
 ### Requirements
 
-- PowerShell (pre-installed on Windows)  
+- PowerShell (pre-installed on Windows) or any Terminal on macOS 
 - [Bun](https://bun.sh) (installed in step 1)
 
 ### Steps
 
-1. Install **Bun** by running in PowerShell:
+1. Install **Bun**,open any terminal and paste:
+- Windows:
 
    ```powershell
    powershell -c "irm bun.sh/install.ps1 | iex"
    ```
+- macOS
+   ```bash
+   curl -fsSL https://bun.sh/install | bash
+   ```
 
 2. Download and unzip the `medit-master.zip` file [(click here)](https://github.com/FedeRacun/medit/archive/refs/heads/master.zip).
 
-3. Open the unzipped folder, right-click on the background, and choose **"Open in Terminal"**.
+3. Open the unzipped folder, right-click on the background, and choose **"Open in Terminal"**. Or navigate through the console if you don't see this option.
 
 4. Install project dependencies:
 
@@ -36,6 +41,9 @@
    ```
 
  ✅ You should see: `Success! Registered "medit"`
+
+
+ ⚠️ If you are a Mac user, you may need to restart your computer for the changes to take effect.
 
 ---
 
